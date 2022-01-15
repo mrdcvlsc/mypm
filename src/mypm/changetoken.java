@@ -44,9 +44,6 @@ import javax.crypto.spec.IvParameterSpec;
  */
 public class changetoken extends javax.swing.JFrame {
 
-    /**
-     * Creates new form changetoken
-     */
     public changetoken() {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -158,7 +155,7 @@ public class changetoken extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String input_oldpassword = javahash.SHA512Hash(String.valueOf(op.getPassword()),12);
+        String input_oldpassword = String.valueOf(op.getPassword());
         String input_newpassword = String.valueOf(np.getPassword());
         String input_retypepassword = String.valueOf(rp.getPassword());
         
@@ -166,33 +163,35 @@ public class changetoken extends javax.swing.JFrame {
             msg.setText(" New Password did not match...");
             return;
         }
-            
-        input_newpassword = javahash.SHA512Hash(String.valueOf(np.getPassword()),12);
         
-        String dbpass = "";
+        String DbOldHashWithSalt = "";
+        
         String OldPass = "";
         String OldSalt = "";
+        
         String NewPass = "";
         String NewSalt = "";
         
         try{
             Class.forName("org.sqlite.JDBC");
             Connection conn = DriverManager.getConnection("jdbc:sqlite:d/dt.db");
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM `msr`");
+            Statement AuthQuery = conn.createStatement();
+            ResultSet GetAuth = AuthQuery.executeQuery("SELECT * FROM `msr`");
             
-            while(rs.next()){
-                dbpass = rs.getString("mpswd");
+            while(GetAuth.next()){
+                DbOldHashWithSalt = GetAuth.getString("mpswd");
             }
                             
-            OldPass = dbpass.substring(0,128);
-            OldSalt = dbpass.substring(128,136);
-                        
-            if(!OldPass.equals(input_oldpassword)){
+            OldPass = DbOldHashWithSalt.substring(0,128);
+            OldSalt = DbOldHashWithSalt.substring(128,136);
+            
+            String AuthHash = javahash.SHA512Hash(OldSalt + input_oldpassword,12);
+            
+            if(!OldPass.equals(AuthHash)){
                 msg.setText("Current password is incorrect...");
                 return;
             }
-            st.close();
+            AuthQuery.close();
         }
         catch(SQLException e){
             msg.setText("Database Error, Database could be gone");
@@ -206,15 +205,16 @@ public class changetoken extends javax.swing.JFrame {
             Class.forName("org.sqlite.JDBC");
             Connection conn = DriverManager.getConnection("jdbc:sqlite:d/dt.db");
          
-            String query = "UPDATE `msr` SET mpswd=? WHERE mpswd=?";
-            PreparedStatement pst = conn.prepareStatement(query);
+            String UpdatePwQuery = "UPDATE `msr` SET mpswd=? WHERE mpswd=?";
+            PreparedStatement UpdatePwExecute = conn.prepareStatement(UpdatePwQuery);
             
             NewSalt = AES128.keyToString(AES128.generateKey()).substring(0,8);
+            NewPass = javahash.SHA512Hash((NewSalt + input_newpassword),12);
             
-            pst.setString(1, input_newpassword + NewSalt);
-            pst.setString(2, dbpass);
-            int changeSuccess = pst.executeUpdate();
-            pst.close();
+            UpdatePwExecute.setString(1, NewPass + NewSalt);
+            UpdatePwExecute.setString(2, DbOldHashWithSalt);
+            int changeSuccess = UpdatePwExecute.executeUpdate();
+            UpdatePwExecute.close();
             
             if(changeSuccess==0)
             {
@@ -223,7 +223,6 @@ public class changetoken extends javax.swing.JFrame {
             else
             {
                 System.out.println("Password Change : Success");
-                NewPass = input_newpassword;
                 
                 // update contents
                 String algorithm = "AES/CBC/PKCS5Padding";
@@ -278,9 +277,6 @@ public class changetoken extends javax.swing.JFrame {
                     System.out.println("--------------------------------------------");
                     System.out.println(""+db_retrieved_items+" items read from the database");
                     retrieveConn.close();
-                    for(int i=0; i<Platforms.size(); ++i){
-                        System.out.println(""+Platforms.get(i)+" : "+Users.get(i)+" : "+Passwords.get(i));
-                    }
                 } catch (Exception err) {
                     err.printStackTrace();
                 }

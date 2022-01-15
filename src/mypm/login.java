@@ -165,12 +165,9 @@ public class login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String pw = String.valueOf(inputpfield.getPassword());
-        pw = javahash.SHA512Hash(pw,12);
-       
-        String inputPassword = pw;
+        String input_password = String.valueOf(inputpfield.getPassword());
+        String DbHashWithSalt = "";
         
-        String dbpass = "";
         try{
             Class.forName("org.sqlite.JDBC");
             Connection conn = DriverManager.getConnection("jdbc:sqlite:d/dt.db");
@@ -178,13 +175,15 @@ public class login extends javax.swing.JFrame {
             ResultSet rs = st.executeQuery("SELECT * FROM `msr`");
             
             while(rs.next()){
-                dbpass = rs.getString("mpswd");
+                DbHashWithSalt = rs.getString("mpswd");
             }
-            
-            CurrentKey = dbpass.substring(0,128);
-            CurrentSalt = dbpass.substring(128,136);
                         
-            if(!CurrentKey.equals(inputPassword)){
+            String DbHash = DbHashWithSalt.substring(0,128);
+            
+            CurrentSalt = DbHashWithSalt.substring(128,136);
+            CurrentKey = javahash.SHA512Hash(CurrentSalt + input_password,12);
+            
+            if(!CurrentKey.equals(DbHash)){
                 attemps++;
                 logmsg.setText("Wrong Password ("+attemps+")");
                 inputpfield.setText("");

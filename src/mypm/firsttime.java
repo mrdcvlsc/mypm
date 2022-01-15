@@ -41,8 +41,7 @@ public class firsttime extends javax.swing.JFrame {
             ResultSet rs = st.executeQuery("SELECT * FROM `msr`");
             int userExist = 0;
             while(rs.next()){
-                    userExist++;
-                    //rs.getString("mpswd");
+                userExist++;
             }
             st.close();
             if(userExist>1){
@@ -170,18 +169,18 @@ public class firsttime extends javax.swing.JFrame {
         if(String.valueOf(token1.getPassword()).equals(String.valueOf(token2.getPassword()))){
             try{
                 System.out.println("New user promt\n");
-                String usertoken = javahash.SHA512Hash(String.valueOf(token1.getPassword()),12);
                 
-                String salt = AES128.keyToString(AES128.generateKey()).substring(0,8);
+                String NewSalt = AES128.keyToString(AES128.generateKey()).substring(0,8);
+                String InputHash = javahash.SHA512Hash(NewSalt + String.valueOf(token1.getPassword()),12);
                 
-                usertoken += salt;
+                String InputHashWithSalt = InputHash + NewSalt;
                 
                 Class.forName("org.sqlite.JDBC");
                 Connection conn = DriverManager.getConnection("jdbc:sqlite:d/dt.db");
 
                 String query = "INSERT INTO `msr` VALUES(?)";
                 PreparedStatement pst = conn.prepareStatement(query);
-                pst.setString(1,usertoken);
+                pst.setString(1,InputHashWithSalt);
                 
                 pst.executeUpdate();
                 pst.close();
