@@ -2,10 +2,10 @@
 
 A simple password manager written in Java.
 
-**use at your own risk!!!**
-
 this is just a hobby project for the purpose of learning,
 the code might have some bugs and vulnerabilities.
+
+**USE AT YOUR OWN RISK!!!**
 
 ----------
 
