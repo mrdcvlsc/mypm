@@ -10,9 +10,9 @@ the code might have some bugs and vulnerabilities.
 ----------
 
 ### Cryptographic Algorithms Used
-- SHA512
-- AES128
-- CBC
+- SHA512 Hash Function
+- AES-128 Block Cipher
+- CBC Mode of Encryption
 
 ### Inner workings
 
