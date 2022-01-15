@@ -193,6 +193,8 @@ public class login extends javax.swing.JFrame {
                 }
                 return;
             }
+            else CurrentKey = input_password;
+            
             st.close();
             new mypmdisp().setVisible(true);
             this.setVisible(false);

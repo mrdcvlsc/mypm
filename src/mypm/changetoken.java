@@ -155,6 +155,9 @@ public class changetoken extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        
+        msg.setText("Please wait...");
+        
         String input_oldpassword = String.valueOf(op.getPassword());
         String input_newpassword = String.valueOf(np.getPassword());
         String input_retypepassword = String.valueOf(rp.getPassword());
@@ -196,9 +199,11 @@ public class changetoken extends javax.swing.JFrame {
         catch(SQLException e){
             msg.setText("Database Error, Database could be gone");
             e.printStackTrace();
+            return;
         } catch (ClassNotFoundException ex) {
             msg.setText("Database Driver not found");
             Logger.getLogger(changetoken.class.getName()).log(Level.SEVERE, null, ex);
+            return;
         }
         
         try{
@@ -218,10 +223,12 @@ public class changetoken extends javax.swing.JFrame {
             
             if(changeSuccess==0)
             {
+                msg.setText("Failed!");
                 System.out.println("Password Change : Failed");
             }
             else
             {
+                msg.setText("Success!");
                 System.out.println("Password Change : Success");
                 
                 // update contents
@@ -231,8 +238,8 @@ public class changetoken extends javax.swing.JFrame {
                 String IvBufferUser;
                 String IvBufferPassword;
                 
-                SecretKey OldAesKey = AES128.generateKey(OldPass, OldSalt);
-                SecretKey NewAesKey = AES128.generateKey(NewPass, NewSalt);
+                SecretKey OldAesKey = AES128.generateKey(input_oldpassword, OldSalt);
+                SecretKey NewAesKey = AES128.generateKey(input_newpassword, NewSalt);
                 
                 byte[] OldByteIV = new byte[16];
                 byte[] NewByteIV = new byte[16];
@@ -279,6 +286,7 @@ public class changetoken extends javax.swing.JFrame {
                     retrieveConn.close();
                 } catch (Exception err) {
                     err.printStackTrace();
+                    return;
                 }
                 
                 // delete old data
@@ -290,6 +298,7 @@ public class changetoken extends javax.swing.JFrame {
                     DeleteAllExecute.close();
                 } catch (Exception err) {
                     err.printStackTrace();
+                    return;
                 }
                 
                 // update with new data
@@ -315,6 +324,7 @@ public class changetoken extends javax.swing.JFrame {
                     InsertQueryExecute.close();
                 } catch (Exception err) {
                     err.printStackTrace();
+                    return;
                 }
             }
             this.setVisible(false);
@@ -322,6 +332,7 @@ public class changetoken extends javax.swing.JFrame {
         catch(Exception e){
             msg.setText("Database Update Error");
             System.out.println(e);
+            return;
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
