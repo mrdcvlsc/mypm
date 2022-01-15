@@ -17,7 +17,7 @@ the code might have some bugs and vulnerabilities.
 ### Inner workings
 
 - when the application is started for the first time, the program will promt the user to enter their new password.
-- the application will read the ```dt.db``` file (an sqlite3 database) inside the ```d``` folder if it's empty or not. This is how the application detects if it the user needs to enter a new password.
+- the application will read the ```dt.db``` file (an sqlite3 database) inside the ```d``` folder if it's empty or not. This is how the application detects if the user needs to enter a new password.
 - for new user they will be prompted to input a new starting password, the new password is then concatenated with a ```random salt```, then it will be hashed using ```SHA512``` and then will be concatenated again with the generated random salt from before, then stored into the ```dt.db``` database.
 - when loging in to the application, the application will get the random salt from the database and the hashed password, the random salt will then be concatenated to the input password then hashed to get an Auth hash, this Auth hash will be compared to the hashed password in the database, this is how the application works in the login promt.
 - the resulting hash of your password (the password that you use to login into the application) and the ```random salt``` is then used to generate the key for the ```AES128``` encryption and decryption when reading from and writing into the ```dt.db``` database.
